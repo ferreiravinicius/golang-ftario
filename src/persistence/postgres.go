@@ -34,6 +34,12 @@ func NewAquaticPostgres() *AquaticPostgres {
 	return instance
 }
 
+func (pg *AquaticPostgres) SaveGenus(genus *entity.Genus) (*entity.Genus, error) {
+	var query = "INSERT INTO genus (name) VALUES ($1) RETURNING id"
+	pg.db.Get(&genus.ID, query, genus.Name)
+	return genus, nil
+}
+
 // Return nil if not found
 func (pg *AquaticPostgres) queryGenusByName(name string) (*GenusSchema, error) {
 	const query = "SELECT id, name FROM genus WHERE name = $1 LIMIT 1"
@@ -105,19 +111,24 @@ func (pg *AquaticPostgres) Save(plant *entity.AquaticPlant) error {
 	}
 
 	const queryPlant = `
-		INSERT INTO aquatic_plant (code, variety, specie_id)
-		VALUES ($1, $2, $3)
+		INSERT INTO aquatic_plant (variety, specie_id)
+		VALUES ($1, $2)
+		RETURNING id
 	`
 
 	currentVariety := GetEmpty(plant.Variety)
-	tx.MustExec(queryPlant, plant.Code, *currentVariety, specieId)
+
+	var gotId int
+	tx.Get(&gotId, queryPlant, *currentVariety, specieId)
 	tx.Commit()
+
+	plant.ID = gotId
 
 	return nil
 }
 
 func (pg *AquaticPostgres) GetOne(specie *entity.Specie, variety string) (*entity.AquaticPlant, error) {
-	panic("implement me")
+	return nil, nil
 }
 
 type GenusSchema struct {
@@ -131,7 +142,7 @@ type SpecieSchema struct {
 }
 
 type PlantSchema struct {
-	Id      int          `db:"id"`
+	ID      int          `db:"id"`
 	Variety *string      `db:"variety"`
 	Specie  SpecieSchema `db:"specie"`
 }

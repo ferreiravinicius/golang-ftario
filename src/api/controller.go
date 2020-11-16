@@ -4,46 +4,37 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/florestario/core/entity"
+	"github.com/florestario/core/service"
+	"github.com/florestario/core/usecase/showroom"
+	"github.com/florestario/persistence"
 	"net/http"
 )
 
-type AquaticPlantInput struct {
-	Code    string `json:"code"`
-	Variety string `json:"variety"`
-	Specie  string `json:"specie"`
-}
 
-func (input *AquaticPlantInput) ToEntity() *entity.AquaticPlant {
-	return &entity.AquaticPlant{
-		Code:    input.Code,
-		Specie:  &entity.Specie{Name: input.Specie},
-		Variety: input.Variety,
+func Decode(request *http.Request, output interface{}) error {
+	if err := json.NewDecoder(request.Body).Decode(&output); err != nil {
+		return fmt.Errorf("Something is wrong with given input (%w) ", err)
 	}
+	return nil
 }
 
-type ErrorOutput struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
+type GenusOutput struct {
+	ID      int    `json:"id"`
+	Name  string `json:"specie"`
 }
 
-func AnswerError(w http.ResponseWriter, statusCode int, code, message string) {
-
-	w.Header().Set("Content-Type", "application/json")
-
-	output := ErrorOutput{
-		Code:    code,
-		Message: message,
-	}
-
-	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(&output)
-}
-
-func AnswerSuccess(w http.ResponseWriter, statusCode int, data ...interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	if len(data) == 1 {
-		json.NewEncoder(w).Encode(&data)
+func CreateGenus(w http.ResponseWriter, r *http.Request) {
+	var genusInput entity.Genus
+	if err := Decode(r, &genusInput); err != nil {
+		AnswerError(w, http.StatusBadRequest, "ErrInp", err.Error())
+	} else {
+		pg := persistence.NewAquaticPostgres()
+		genusService := service.NewGenusService(pg)
+		output, err := genusService.CreateGenus(&genusInput)
+		if err != nil {
+			AnswerError(w, http.StatusBadRequest, "ErrNeedToWrap", err.Error())
+		}
+		AnswerSuccess(w, http.StatusAccepted, output)
 	}
 }
 
@@ -53,6 +44,14 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		message := fmt.Sprintf("Something wrong with input (%s)", err.Error())
 		AnswerError(w, http.StatusBadRequest, "ErrInp", message)
 	} else {
-		AnswerSuccess(w, http.StatusAccepted)
+		pg := persistence.NewAquaticPostgres()
+		usecase := showroom.NewRegisterAquaticPlant(pg)
+		plant, err := usecase.Execute(input.ToEntity())
+		if err != nil {
+			AnswerError(w, http.StatusBadRequest, "ErrNeedToWrap", err.Error())
+		}
+
+		output := FromEntity(plant)
+		AnswerSuccess(w, http.StatusAccepted, output)
 	}
 }

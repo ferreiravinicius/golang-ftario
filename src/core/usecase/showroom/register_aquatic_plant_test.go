@@ -22,37 +22,36 @@ func getValidInput() *entity.AquaticPlant {
 
 func TestPersistenceGateway(t *testing.T) {
 
-	t.Run("should return err when save fails", func(t *testing.T) {
+	t.Run("should return errx when save fails", func(t *testing.T) {
 
-		var errorMock = errors.New("mock err")
+		var errorMock = errors.New("mock errx")
 		persistenceMock := mock.NewAquaticPlantPersistenceMock(errorMock, nil)
 
 		ucase := showroom.NewRegisterAquaticPlant(persistenceMock)
 
 		_, err := ucase.Execute(getValidInput())
 		if !errors.Is(err, errorMock) {
-			t.Errorf("expected err when save fails")
+			t.Errorf("expected errx when save fails")
 		}
 	})
 
-	t.Run("should return err when duplicated variety and specie", func(t *testing.T) {
+	t.Run("should return errx when duplicated variety and specie", func(t *testing.T) {
 		var plantMock = &entity.AquaticPlant{}
 		persistenceMock := mock.NewAquaticPlantPersistenceMock(nil, plantMock)
 
 		ucase := showroom.NewRegisterAquaticPlant(persistenceMock)
 		_, err := ucase.Execute(getValidInput())
 		if err == nil {
-			t.Errorf("expected err when found duplicated aquatic plant")
+			t.Errorf("expected errx when found duplicated aquatic plant")
 		}
 	})
 }
 
 func TestShouldCallCodeGeneratorAndReturnCodeWhenSaved(t *testing.T) {
-	//codeGeneratorMock := mock.NewCodeGeneratorMock("yolo")
 	persistenceMock := mock.NewAquaticPlantPersistenceMock(nil, nil)
 	ucase := showroom.NewRegisterAquaticPlant(persistenceMock)
-	code, _ := ucase.Execute(getValidInput())
-	if len(code) <= 0 {
-		t.Errorf("should return generated code when finishes saving")
+	plant, _ := ucase.Execute(getValidInput())
+	if plant.ID <= 0 {
+		t.Errorf("should return generated id when finishes saving")
 	}
 }

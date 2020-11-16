@@ -3,13 +3,13 @@ package showroom
 import (
 	"fmt"
 	"github.com/florestario/core/entity"
-	"github.com/florestario/core/err"
+	"github.com/florestario/core/errx"
 	"github.com/florestario/core/gateway"
 )
 
 // RegisterAquaticPlantUseCase interface for use case
 type RegisterAquaticPlantUseCase interface {
-	Execute(*entity.AquaticPlant) (string, error)
+	Execute(*entity.AquaticPlant) (*entity.AquaticPlant, error)
 }
 
 type registerAquaticPlant struct {
@@ -24,24 +24,18 @@ func NewRegisterAquaticPlant(persistence gateway.AquaticPlantPersistence) *regis
 }
 
 // Execute the usecase
-func (usecase *registerAquaticPlant) Execute(plant *entity.AquaticPlant) (string, error) {
+func (usecase *registerAquaticPlant) Execute(plant *entity.AquaticPlant) (*entity.AquaticPlant, error) {
 
 	//TODO: call validator for required fields
 
 	persisted, _ := usecase.persistence.GetOne(plant.Specie, plant.Variety)
 	if persisted != nil {
-		return "", err.ErrTaxonomyAlreadyExists
+		return nil, errx.ErrTaxonomyAlreadyExists
 	}
 
-	code, err := plant.UniqueCode()
-	if err != nil {
-		return "", err
-	}
-	plant.Code = code
-
-	if err = usecase.persistence.Save(plant); err != nil {
-		return "", fmt.Errorf("failed to save:  %w", err)
+	if err := usecase.persistence.Save(plant); err != nil {
+		return nil, fmt.Errorf("failed to save:  %w", err)
 	}
 
-	return code, nil
+	return plant, nil
 }

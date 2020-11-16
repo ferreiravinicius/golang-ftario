@@ -1,4 +1,4 @@
-package err
+package errx
 
 import "fmt"
 
@@ -12,8 +12,9 @@ func (e errorCustom) Error() string {
 	return fmt.Sprintf("(%s) %s", e.code, e.message)
 }
 
-func New(code string, message string) *errorCustom {
-	return &errorCustom{code: code, message: message}
+func New(code string, message string, args ...interface{}) *errorCustom {
+	formatted := fmt.Sprintf(message, args)
+	return &errorCustom{code: code, message: formatted}
 }
 
 var (

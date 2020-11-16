@@ -1,0 +1,22 @@
+version: '3'
+services:
+  database:
+    image: postgres:11.4
+    container_name: florestariopg
+    restart: always
+    environment:
+      POSTGRES_DB: florestario
+      POSTGRES_PASSWORD: florestario
+      POSTGRES_USER: florestario
+    volumes: 
+      - florestariodata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks: 
+      - florestarionw
+
+volumes:
+  florestariodata:
+
+networks: 
+  florestarionw:

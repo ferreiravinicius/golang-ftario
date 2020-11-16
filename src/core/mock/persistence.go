@@ -12,6 +12,9 @@ func (mock aquaticPlantPersistenceMock) GetOne(specie *entity.Specie, variety st
 }
 
 func (mock aquaticPlantPersistenceMock) Save(plant *entity.AquaticPlant) error {
+	if mock.saveResult == nil {
+		plant.ID = 123
+	}
 	return mock.saveResult
 }
 

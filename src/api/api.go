@@ -19,6 +19,7 @@ func NewApi() *server {
 
 func (server *server) configureRoutes() {
 	server.mux.HandleFunc(pat.Post("/register"), Create)
+	server.mux.HandleFunc(pat.Post("/genus"), CreateGenus)
 }
 
 func (server *server) Start() {
