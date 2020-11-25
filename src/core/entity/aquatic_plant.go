@@ -1,4 +1,4 @@
-package entity
+package entity //import "github.com/florestario/core/entity"
 
 // AquaticPlant Entity that represents aquatic plant
 type AquaticPlant struct {
