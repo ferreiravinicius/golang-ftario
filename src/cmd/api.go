@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/florestario/delivery"
+	"github.com/florestario/api"
 )
 
 
@@ -23,6 +23,6 @@ func main() {
 
 	//persistence.Other()
 
-	api := delivery.NewApi()
+	api := api.NewApi()
 	api.Start()
 }
