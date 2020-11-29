@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"github.com/florestario/api/controller"
+	"github.com/florestario/api/engine"
 	"goji.io"
 	"goji.io/pat"
 	"net/http"
@@ -20,9 +21,9 @@ func NewApi() *server {
 	return server
 }
 
-func (server *server) configureRoutes(errorManager controller.ErrorManager) {
+func (server *server) configureRoutes(errorManager engine.AppErrorHandler) {
 	appHandler := controller.CreateGenus(nil)
-	server.mux.Handle(pat.Post("/genus"), controller.NewRoute(errorManager, appHandler))
+	server.mux.Handle(pat.Post("/genus"), engine.NewAppController(errorManager, appHandler))
 }
 
 func (server *server) Start() {

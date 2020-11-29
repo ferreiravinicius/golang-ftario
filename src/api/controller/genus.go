@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"github.com/florestario/api/engine"
 	"github.com/florestario/core/service"
 	"net/http"
 )
@@ -10,7 +11,7 @@ type GenusInput struct {
 	Name string `json:"name"`
 }
 
-func CreateGenus(service *service.GenusService) appHandler {
+func CreateGenus(service *service.GenusService) engine.AppHandler {
 	return func (w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("Testing returned type ")
 	}
