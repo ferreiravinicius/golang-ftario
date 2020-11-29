@@ -15,12 +15,14 @@ type server struct {
 func NewApi() *server {
 	mux := goji.NewMux()
 	server := &server{mux: mux}
-	server.configureRoutes()
+	errorManager := controller.NewSimpleErrorManager()
+	server.configureRoutes(errorManager)
 	return server
 }
 
-func (server *server) configureRoutes() {
-	server.mux.HandleFunc(pat.Post("/genus"), controller.CreateGenus(nil).ServeHTTP)
+func (server *server) configureRoutes(errorManager controller.ErrorManager) {
+	appHandler := controller.CreateGenus(nil)
+	server.mux.Handle(pat.Post("/genus"), controller.NewRoute(errorManager, appHandler))
 }
 
 func (server *server) Start() {

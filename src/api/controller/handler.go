@@ -5,15 +5,31 @@ import (
 	"net/http"
 )
 
-type Handler func(w http.ResponseWriter, r *http.Request) error
+type ErrorManager interface {
+	CreateResponse(error error) ErrorResponse
+}
 
-const contentTypeKey, contentTypeValue = "Content-Type", "application/json"
+type appHandler func(w http.ResponseWriter, r *http.Request) error
 
-func (handler Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set(contentTypeKey, contentTypeValue)
-	if error := handler(w, r); error != nil {
-		response := ManageErrorResponse(error)
+type Route struct {
+	errorManager ErrorManager
+	appHandler
+}
+
+func NewRoute(errorManager ErrorManager, appHandler appHandler) *Route {
+	return &Route{errorManager: errorManager, appHandler: appHandler}
+}
+
+func (route Route) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	configureHeaders(w)
+	if error := route.appHandler(w, r); error != nil {
+		response := route.errorManager.CreateResponse(error)
 		w.WriteHeader(response.HttpStatus)
 		json.NewEncoder(w).Encode(&response) //TODO: change to encoder
 	}
 }
+
+func configureHeaders(responseWriter http.ResponseWriter) {
+	responseWriter.Header().Set("Content-Type", "application/json")
+}
+

@@ -10,7 +10,7 @@ type GenusInput struct {
 	Name string `json:"name"`
 }
 
-func CreateGenus(service *service.GenusService) Handler {
+func CreateGenus(service *service.GenusService) appHandler {
 	return func (w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("Testing returned type ")
 	}
