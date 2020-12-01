@@ -4,16 +4,15 @@ import (
 	"encoding/json"
 	"github.com/florestario/api/engine"
 	"github.com/florestario/core/entity"
-	"github.com/florestario/core/service"
 	"github.com/florestario/core/usecase/showroom"
 	"net/http"
 )
 
 type GenusController struct {
-	interactor showroom.RegisterGenusInteractor
+	interactor *showroom.RegisterGenusInteractor
 }
 
-func NewGenusController(interactor showroom.RegisterGenusInteractor) *GenusController {
+func NewGenusController(interactor *showroom.RegisterGenusInteractor) *GenusController {
 	return &GenusController{interactor: interactor}
 }
 
