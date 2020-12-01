@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/florestario/api/controller"
 	"github.com/florestario/api/engine"
+	"github.com/florestario/core/mock"
 	"github.com/florestario/core/service"
+	"github.com/florestario/core/usecase/showroom"
 	"github.com/florestario/persistence"
 	"goji.io"
 	"goji.io/pat"
@@ -25,6 +27,8 @@ func NewApi() *server {
 
 func (server *server) configureRoutes(errorManager engine.AppErrorHandler) {
 	pg := persistence.NewAquaticPostgres()
+
+	showroom.NewRegisterGenusInteractor(pg, mock.ValidatorMock{})
 	genusService := service.NewGenusService(pg)
 	genusCtr := controller.NewGenusController(genusService)
 	server.mux.Handle(pat.Post("/genus"), engine.NewAppContext(errorManager, genusCtr.HandleCreateGenus))

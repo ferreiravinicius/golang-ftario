@@ -5,28 +5,29 @@ import (
 	"github.com/florestario/api/engine"
 	"github.com/florestario/core/entity"
 	"github.com/florestario/core/service"
+	"github.com/florestario/core/usecase/showroom"
 	"net/http"
 )
 
-type genusController struct {
-	service service.GenusService
+type GenusController struct {
+	interactor showroom.RegisterGenusInteractor
 }
 
-func NewGenusController(service service.GenusService) *genusController {
-	return &genusController{service: service}
+func NewGenusController(interactor showroom.RegisterGenusInteractor) *GenusController {
+	return &GenusController{interactor: interactor}
 }
 
 type GenusInput struct {
 	Name string `json:"name"`
 }
 
-func (ctr *genusController) HandleCreateGenus(w http.ResponseWriter, r *http.Request) error {
+func (ctr *GenusController) HandleCreateGenus(w http.ResponseWriter, r *http.Request) error {
 	var genusInput GenusInput
 	if err := engine.Decode(r, &genusInput); err != nil {
 		return err
 	}
 
-	output, err := ctr.service.CreateGenus(&entity.Genus{Name: genusInput.Name})
+	output, err := ctr.interactor.Execute(&entity.Genus{Name: genusInput.Name})
 	if err != nil {
 		return err
 	}
@@ -36,21 +37,3 @@ func (ctr *genusController) HandleCreateGenus(w http.ResponseWriter, r *http.Req
 
 	return nil
 }
-
-//var RegisterGenus api.Handler = func (w http.ResponseWriter, r *http.Request) error {
-//	var genusInput GenusInput
-//	if err := Decode(r, &genusInput); err != nil {
-//		return err
-//	}
-//
-//	service := interactor.GenusService()
-//	entity := &entity2.Genus{ Name: genusInput.Name }
-//	if output, err := service.CreateGenus(entity); err != nil {
-//		return err
-//	} else {
-//		w.Header().Set("Content-Type", "application/json")
-//		w.WriteHeader(http.StatusCreated)
-//		json.NewEncoder(w).Encode(&output)
-//	}
-//	return nil
-//}
