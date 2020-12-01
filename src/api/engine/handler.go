@@ -5,21 +5,21 @@ import (
 	"net/http"
 )
 
-type AppHandler func(w http.ResponseWriter, r *http.Request) error
+type AppHttpHandler func(w http.ResponseWriter, r *http.Request) error
 
-type AppController struct {
+type AppContext struct {
 	errorHandler AppErrorHandler
-	AppHandler
+	AppHttpHandler
 }
 
-func NewAppController(errorManager AppErrorHandler, appHandler AppHandler) *AppController {
-	return &AppController{errorHandler: errorManager, AppHandler: appHandler}
+func NewAppContext(errorHandler AppErrorHandler, httpHandler AppHttpHandler) *AppContext {
+	return &AppContext{errorHandler: errorHandler, AppHttpHandler: httpHandler}
 }
 
-func (ctr AppController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (ctx AppContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	configureHeaders(w)
-	if error := ctr.AppHandler(w, r); error != nil {
-		response := ctr.errorHandler.CreateResponse(error)
+	if error := ctx.AppHttpHandler(w, r); error != nil {
+		response := ctx.errorHandler.CreateResponse(error)
 		w.WriteHeader(response.HttpStatus)
 		json.NewEncoder(w).Encode(&response) //TODO: change to encoder
 	}

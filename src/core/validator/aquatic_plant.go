@@ -2,19 +2,19 @@ package validator
 
 import (
 	"github.com/florestario/core/entity"
-	"github.com/florestario/core/errx"
+	"github.com/florestario/core/err"
 )
 
 var (
-	ErrGenusValidation = errx.New("ErrGenusVal", "Genus is required and can't be empty")
-	ErrSpecieNameValidation = errx.New("ErrSpecieNameVal", "Specie name is required")
+	ErrGenusValidation = err.New("ErrGenusVal", "Genus is required and can't be empty")
+	ErrSpecieNameValidation = err.New("ErrSpecieNameVal", "Specie name is required")
 )
 
 func ValidateGenus(genus *entity.Genus) error {
 
 	if genus == nil {
 		errMessage := "Genus is required"
-		return errx.New("ErrGenusNil", errMessage)
+		return err.New("ErrGenusNil", errMessage)
 	}
 
 	if genus.Name == "" {
@@ -27,12 +27,12 @@ func ValidateSpecie(specie *entity.Specie) error {
 
 	if specie == nil {
 		errMessage := "Specie is required"
-		return errx.New("ErrSpecNil", errMessage)
+		return err.New("ErrSpecNil", errMessage)
 	}
 
 	if specie.Name == "" {
 		errMessage, errArg := "Specie '%s' is required", "name"
-		return errx.New("ErrSpecNameVal", errMessage, errArg)
+		return err.New("ErrSpecNameVal", errMessage, errArg)
 	}
 
 	if err := ValidateGenus(specie.Genus); err != nil {

@@ -22,27 +22,27 @@ func getValidInput() *entity.AquaticPlant {
 
 func TestPersistenceGateway(t *testing.T) {
 
-	t.Run("should return errx when save fails", func(t *testing.T) {
+	t.Run("should return err when save fails", func(t *testing.T) {
 
-		var errorMock = errors.New("mock errx")
+		var errorMock = errors.New("mock err")
 		persistenceMock := mock.NewAquaticPlantPersistenceMock(errorMock, nil)
 
 		ucase := showroom.NewRegisterAquaticPlant(persistenceMock)
 
 		_, err := ucase.Execute(getValidInput())
 		if !errors.Is(err, errorMock) {
-			t.Errorf("expected errx when save fails")
+			t.Errorf("expected err when save fails")
 		}
 	})
 
-	t.Run("should return errx when duplicated variety and specie", func(t *testing.T) {
+	t.Run("should return err when duplicated variety and specie", func(t *testing.T) {
 		var plantMock = &entity.AquaticPlant{}
 		persistenceMock := mock.NewAquaticPlantPersistenceMock(nil, plantMock)
 
 		ucase := showroom.NewRegisterAquaticPlant(persistenceMock)
 		_, err := ucase.Execute(getValidInput())
 		if err == nil {
-			t.Errorf("expected errx when found duplicated aquatic plant")
+			t.Errorf("expected err when found duplicated aquatic plant")
 		}
 	})
 }

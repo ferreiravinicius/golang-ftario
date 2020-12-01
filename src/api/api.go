@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/florestario/api/controller"
 	"github.com/florestario/api/engine"
+	"github.com/florestario/core/service"
+	"github.com/florestario/persistence"
 	"goji.io"
 	"goji.io/pat"
 	"net/http"
@@ -22,8 +24,10 @@ func NewApi() *server {
 }
 
 func (server *server) configureRoutes(errorManager engine.AppErrorHandler) {
-	appHandler := controller.CreateGenus(nil)
-	server.mux.Handle(pat.Post("/genus"), engine.NewAppController(errorManager, appHandler))
+	pg := persistence.NewAquaticPostgres()
+	genusService := service.NewGenusService(pg)
+	genusCtr := controller.NewGenusController(genusService)
+	server.mux.Handle(pat.Post("/genus"), engine.NewAppContext(errorManager, genusCtr.HandleCreateGenus))
 }
 
 func (server *server) Start() {

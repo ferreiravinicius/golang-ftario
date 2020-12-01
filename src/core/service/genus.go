@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/florestario/core/entity"
-	"github.com/florestario/core/errx"
+	"github.com/florestario/core/err"
 	"github.com/florestario/core/validator"
 )
 
@@ -22,7 +22,7 @@ func NewGenusService(persistence GenusPersistence) *genusService {
 	return &genusService{persistence: persistence}
 }
 
-func (service *genusService) CreateGenus(genus *entity.Genus) (*entity.Genus, error) {
+func (service genusService) CreateGenus(genus *entity.Genus) (*entity.Genus, error) {
 
 	if err := validator.ValidateGenus(genus); err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func (service *genusService) CreateGenus(genus *entity.Genus) (*entity.Genus, er
 	genusOutput, err := service.persistence.SaveGenus(genus)
 	if err != nil {
 		errorMessage := "Unexpected error: %w"
-		errx.New("ErrUxp", errorMessage, err)
+		err.New("ErrUxp", errorMessage, err)
 	}
 
 	return genusOutput, nil

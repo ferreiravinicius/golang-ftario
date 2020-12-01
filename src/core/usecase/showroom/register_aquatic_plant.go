@@ -3,7 +3,7 @@ package showroom
 import (
 	"fmt"
 	"github.com/florestario/core/entity"
-	"github.com/florestario/core/errx"
+	"github.com/florestario/core/err"
 	"github.com/florestario/core/gateway"
 )
 
@@ -30,7 +30,7 @@ func (usecase *registerAquaticPlant) Execute(plant *entity.AquaticPlant) (*entit
 
 	persisted, _ := usecase.persistence.GetOne(plant.Specie, plant.Variety)
 	if persisted != nil {
-		return nil, errx.ErrTaxonomyAlreadyExists
+		return nil, err.ErrTaxonomyAlreadyExists
 	}
 
 	if err := usecase.persistence.Save(plant); err != nil {
