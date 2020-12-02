@@ -10,7 +10,11 @@ func TestExecute(t *testing.T) {
 
 	t.Run("should return saved genus", func(t *testing.T) {
 
-		persistence := mock.NewGenusPersistenceMock(false)
+		expectedId := 999
+
+		persistence := mock.GenusPersistenceMock{
+			MockSaveGenusId: expectedId,
+		}
 		validator := mock.NewValidatorMock()
 		interactor := NewRegisterGenusInteractor(persistence, validator)
 
@@ -18,9 +22,20 @@ func TestExecute(t *testing.T) {
 			Name: "test",
 		})
 
-		if output.ID == 0 {
+		if output.ID != expectedId {
 			t.Errorf("expected ID to be fullfilled with persisted data")
 		}
 	})
 
+	t.Run("should check if exists genus with same name", func(t *testing.T) {
+
+		fakeGenus := &entity.Genus{Name: "fake"}
+		persistence := mock.GenusPersistenceMock{ MockGetGenusByName: fakeGenus }
+		validator := mock.NewValidatorMock()
+		interactor := NewRegisterGenusInteractor(persistence, validator)
+
+		if _, err := interactor.Execute(&entity.Genus{}); err == nil {
+			t.Errorf("expected error when duplicated is found")
+		}
+	})
 }

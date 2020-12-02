@@ -6,32 +6,34 @@ import (
 )
 
 type GenusPersistenceMock struct {
-	doError bool
+	MockError          bool
+	MockSaveGenusId    int
+	MockGetGenusByName *entity.Genus
 }
 
-func NewGenusPersistenceMock(doError bool) *GenusPersistenceMock {
-	return &GenusPersistenceMock{doError: doError}
+func (mock GenusPersistenceMock) GetGenusByName(name string) (*entity.Genus, error) {
+	return mock.MockGetGenusByName, nil
 }
 
 func (mock GenusPersistenceMock) SaveGenus(genus *entity.Genus) (*entity.Genus, error) {
-	if mock.doError {
+	if mock.MockError {
 		return nil, fmt.Errorf("mock error")
 	}
-	genus.ID = 555
+	genus.ID = mock.MockSaveGenusId
 	return genus, nil
 }
 
 type aquaticPlantPersistenceMock struct {
-	saveResult error
+	saveResult   error
 	getOneReturn *entity.AquaticPlant
-	giveError bool
+	giveError    bool
 }
 
-func (mock aquaticPlantPersistenceMock) GetOne(specie *entity.Specie, variety string) (*entity.AquaticPlant, error) {
+func (mock aquaticPlantPersistenceMock) GetPlant(specie *entity.Specie, variety string) (*entity.AquaticPlant, error) {
 	return mock.getOneReturn, nil
 }
 
-func (mock aquaticPlantPersistenceMock) Save(plant *entity.AquaticPlant) error {
+func (mock aquaticPlantPersistenceMock) SavePlant(plant *entity.AquaticPlant) error {
 	if mock.saveResult == nil {
 		plant.ID = 123
 	}
@@ -41,7 +43,7 @@ func (mock aquaticPlantPersistenceMock) Save(plant *entity.AquaticPlant) error {
 // NewAquaticPlantPersistenceMock just a mock
 func NewAquaticPlantPersistenceMock(saveResult error, getOneReturn *entity.AquaticPlant) *aquaticPlantPersistenceMock {
 	return &aquaticPlantPersistenceMock{
-		saveResult: saveResult,
+		saveResult:   saveResult,
 		getOneReturn: getOneReturn,
 	}
 }

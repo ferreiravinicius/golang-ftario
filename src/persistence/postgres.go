@@ -78,7 +78,7 @@ func GetEmpty(text string) *string {
 	return &text
 }
 
-func (pg *AquaticPostgres) Save(plant *entity.AquaticPlant) error {
+func (pg *AquaticPostgres) SavePlant(plant *entity.AquaticPlant) error {
 
 	specie := plant.Specie
 	genus := specie.Genus
@@ -127,7 +127,7 @@ func (pg *AquaticPostgres) Save(plant *entity.AquaticPlant) error {
 	return nil
 }
 
-func (pg *AquaticPostgres) GetOne(specie *entity.Specie, variety string) (*entity.AquaticPlant, error) {
+func (pg *AquaticPostgres) GetPlant(specie *entity.Specie, variety string) (*entity.AquaticPlant, error) {
 	return nil, nil
 }
 

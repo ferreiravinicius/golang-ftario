@@ -23,10 +23,14 @@ func (interactor RegisterGenusInteractor) Execute(genus *entity.Genus) (*entity.
 		return nil, err
 	}
 
+	if persisted, _ := interactor.persistence.GetGenusByName(genus.Name); persisted != nil {
+		err := errors.New("Genus already exists") //TODO: use custom error to help intl
+		return nil, err
+	}
+
 	genusOutput, err := interactor.persistence.SaveGenus(genus)
 	if err != nil {
-		//TODO: validate if message provider is necessary for this kind of error
-		wrapped := errors.Wrap(err, "Error at register genus interactor")
+		wrapped := errors.Wrap(err, "Error at register genus interactor") //TODO: use custom err to help intl
 		return nil, wrapped
 	}
 
