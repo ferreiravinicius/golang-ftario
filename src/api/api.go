@@ -26,7 +26,7 @@ func NewApi() *server {
 
 func (server *server) configureRoutes(errorManager engine.AppErrorHandler) {
 	pg := persistence.NewAquaticPostgres()
-	interactor := showroom.NewRegisterGenusInteractor(pg, mock.NewValidatorMock())
+	interactor := showroom.NewRegisterGenusInteractor(pg, mock.ValidatorMock{})
 	genusCtr := controller.NewGenusController(interactor)
 	server.mux.Handle(pat.Post("/genus"), engine.NewAppContext(errorManager, genusCtr.HandleCreateGenus))
 }

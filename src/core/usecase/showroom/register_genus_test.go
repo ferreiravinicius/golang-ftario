@@ -15,7 +15,7 @@ func TestExecute(t *testing.T) {
 		persistence := mock.GenusPersistenceMock{
 			MockSaveGenusId: expectedId,
 		}
-		validator := mock.NewValidatorMock()
+		validator := mock.ValidatorMock{}
 		interactor := NewRegisterGenusInteractor(persistence, validator)
 
 		output, _ := interactor.Execute(&entity.Genus{
@@ -31,7 +31,7 @@ func TestExecute(t *testing.T) {
 
 		fakeGenus := &entity.Genus{Name: "fake"}
 		persistence := mock.GenusPersistenceMock{ MockGetGenusByName: fakeGenus }
-		validator := mock.NewValidatorMock()
+		validator := mock.ValidatorMock{}
 		interactor := NewRegisterGenusInteractor(persistence, validator)
 
 		if _, err := interactor.Execute(&entity.Genus{}); err == nil {
