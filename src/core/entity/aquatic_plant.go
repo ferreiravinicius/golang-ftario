@@ -10,6 +10,7 @@ type AquaticPlant struct {
 
 // Specie Entity that represents species
 type Specie struct {
+	ID    int
 	Name  string
 	Genus *Genus
 }

@@ -17,7 +17,7 @@ func NewAppContext(errorHandler AppErrorHandler, httpHandler AppHttpHandler) *Ap
 }
 
 func (ctx AppContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	configureHeaders(w)
+	configureHeaders(&w)
 	if error := ctx.AppHttpHandler(w, r); error != nil {
 		response := ctx.errorHandler.CreateResponse(error)
 		w.WriteHeader(response.HttpStatus)
@@ -25,6 +25,9 @@ func (ctx AppContext) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func configureHeaders(responseWriter http.ResponseWriter) {
-	responseWriter.Header().Set("Content-Type", "application/json")
+func configureHeaders(responseWriter *http.ResponseWriter) {
+	(*responseWriter).Header().Add("Access-Control-Allow-Origin", "*")
+	(*responseWriter).Header().Add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
+	(*responseWriter).Header().Add("Access-Control-Allow-Headers", "Content-Type")
+	(*responseWriter).Header().Set("Content-Type", "application/json")
 }

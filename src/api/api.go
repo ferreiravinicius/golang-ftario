@@ -2,11 +2,12 @@ package api
 
 import (
 	"fmt"
+	"github.com/florestario/adapter/persistence"
+	"github.com/florestario/adapter/validator"
 	"github.com/florestario/api/controller"
 	"github.com/florestario/api/engine"
-	"github.com/florestario/core/mock"
+	"github.com/florestario/core/gateway"
 	"github.com/florestario/core/usecase/showroom"
-	"github.com/florestario/persistence"
 	"goji.io"
 	"goji.io/pat"
 	"net/http"
@@ -16,19 +17,46 @@ type server struct {
 	mux *goji.Mux
 }
 
+type Dependencies struct {
+	errorHandler engine.AppErrorHandler
+	validatorGateway gateway.ValidatorGateway
+	showroomPersistence gateway.ShowroomPersistence
+}
+
 func NewApi() *server {
 	mux := goji.NewMux()
 	server := &server{mux: mux}
-	errorManager := controller.NewSimpleErrorManager()
-	server.configureRoutes(errorManager)
+
+	deps := &Dependencies{
+		errorHandler:        controller.NewSimpleErrorManager(),
+		validatorGateway:    validator.NewOzzoValidator(),
+		showroomPersistence: persistence.Instance(),
+	}
+
+	server.configureRoutes(deps)
+	server.configureFilter(deps)
+	server.configureFilterSpecie(deps)
+
 	return server
 }
 
-func (server *server) configureRoutes(errorManager engine.AppErrorHandler) {
-	pg := persistence.NewAquaticPostgres()
-	interactor := showroom.NewRegisterGenusInteractor(pg, mock.ValidatorMock{})
-	genusCtr := controller.NewGenusController(interactor)
-	server.mux.Handle(pat.Post("/genus"), engine.NewAppContext(errorManager, genusCtr.HandleCreateGenus))
+func (server *server) configureFilterSpecie(deps *Dependencies) {
+	interactor := showroom.NewFilterSpecieByNameInteractor(deps.showroomPersistence)
+	handler := controller.HandlerFilterSpecieByName(interactor)
+	server.mux.Handle(pat.Get("/specie/filter"), engine.NewAppContext(deps.errorHandler, handler))
+}
+
+
+func (server *server) configureRoutes(deps *Dependencies) {
+	interactor := showroom.NewRegisterGenusInteractor(deps.showroomPersistence, deps.validatorGateway)
+	handler := controller.HandlerRegisterGenus(interactor)
+	server.mux.Handle(pat.Post("/genus"), engine.NewAppContext(deps.errorHandler, handler))
+}
+
+func (server *server) configureFilter(deps *Dependencies) {
+	interactor := showroom.NewFilterGenusByNameInteractor(deps.showroomPersistence)
+	handler := controller.HandlerFilterGenusByName(interactor)
+	server.mux.Handle(pat.Get("/genus/filter"), engine.NewAppContext(deps.errorHandler, handler))
 }
 
 func (server *server) Start() {

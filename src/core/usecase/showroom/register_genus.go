@@ -19,7 +19,7 @@ func NewRegisterGenusInteractor(
 
 func (interactor RegisterGenusInteractor) Execute(genus *entity.Genus) (*entity.Genus, error) {
 
-	if err := interactor.validator.ValidateGenus(genus); err != nil {
+	if err := interactor.validator.ValidateGenus(*genus); err != nil {
 		return nil, err
 	}
 

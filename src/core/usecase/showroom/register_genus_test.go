@@ -11,16 +11,17 @@ func TestExecute(t *testing.T) {
 	t.Run("should return saved genus", func(t *testing.T) {
 
 		expectedId := 999
-
-		persistence := mock.GenusPersistenceMock{
-			MockSaveGenusId: expectedId,
+		persistence := &mock.GenusPersistenceMock{
+			GenusReaderMock: mock.GenusReaderMock{},
+			GenusWriterMock: mock.GenusWriterMock{
+				MockSaveGenus: &entity.Genus{ID: expectedId},
+			},
 		}
+
 		validator := mock.ValidatorMock{}
 		interactor := NewRegisterGenusInteractor(persistence, validator)
 
-		output, _ := interactor.Execute(&entity.Genus{
-			Name: "test",
-		})
+		output, _ := interactor.Execute(&entity.Genus{Name: "whatever"})
 
 		if output.ID != expectedId {
 			t.Errorf("expected ID to be fullfilled with persisted data")
@@ -30,7 +31,13 @@ func TestExecute(t *testing.T) {
 	t.Run("should check if exists genus with same name", func(t *testing.T) {
 
 		fakeGenus := &entity.Genus{Name: "fake"}
-		persistence := mock.GenusPersistenceMock{ MockGetGenusByName: fakeGenus }
+		persistence := &mock.GenusPersistenceMock{
+			GenusReaderMock: mock.GenusReaderMock{
+				MockGetGenusByName: fakeGenus,
+			},
+			GenusWriterMock: mock.GenusWriterMock{},
+		}
+
 		validator := mock.ValidatorMock{}
 		interactor := NewRegisterGenusInteractor(persistence, validator)
 
